@@ -1,0 +1,35 @@
+Ambrose is a framework for data workflow visualization and real-time monitoring.
+Copyright 2012 Twitter, Inc.
+
+Third Party Dependences:
+
+Apache Hadoop
+Apache Public License 2.0
+http://hadoop.apache.org/
+
+Apache Pig
+Apache Public License 2.0
+http://pig.apache.org/
+
+Eclipse Jetty
+Apache Public License 2.0
+http://www.eclipse.org/jetty/
+
+D3.js
+Copyright 2012, Michael Bostock
+BSD License
+http://d3js.org/
+
+jQuery
+MIT License
+http://jquery.com/
+
+Twitter Bootstrap
+Apache Public License 2.0
+http://twitter.github.com/bootstrap/
+
+Azkaban
+Apache Public License 2.0
+https://github.com/azkaban/azkaban
+
+For a full list of dependencies, please consult the Maven pom.xml file.
