@@ -1,9 +1,6 @@
 # Ambrose [![Build Status](https://secure.travis-ci.org/twitter/ambrose.png)](http://travis-ci.org/twitter/ambrose)
 
-Twitter Ambrose is a platform for visualization and real-time monitoring of MapReduce data workflows.
-It presents a global view of all the map-reduce jobs derived from your workflow after planning and
-optimization. As jobs are submitted for execution on your Hadoop cluster, Ambrose updates its
-visualization to reflect the latest job status, polled from your process.
+更改后的ambrose
 
 Ambrose provides the following in a web UI:
 
@@ -17,17 +14,13 @@ Ambrose is built using the following front-end technologies:
 * [Bootstrap](http://twitter.github.com/bootstrap/) - For layout and CSS support
 
 Ambrose is designed to support any workflow runtime, but current support is limited to [Apache
-Pig](http://pig.apache.org/).
+Hive](http://hive.apache.org/).
 
 Follow [@Ambrose](https://twitter.com/ambrose) on Twitter to stay in touch!
 
 ## Supported runtimes
 
-* [Pig](http://pig.apache.org/) - See [pig/README.md](https://github.com/twitter/ambrose/blob/master/pig/README.md)
 * [Hive](http://hive.apache.org/) See [hive/README.md](https://github.com/twitter/ambrose/blob/master/hive/README.md)
-* [Cascading](http://www.cascading.org/) - future work
-* [Scalding](https://github.com/twitter/scalding) - future work
-* [Cascalog](https://github.com/nathanmarz/cascalog) - future work
 
 ## Examples
 
@@ -50,7 +43,7 @@ same job will deselect it.
 To get started with Ambrose, first clone the Ambrose Github repository:
 
 ```
-git clone https://github.com/twitter/ambrose.git
+git clone https://github.com/jy01649210/ambrose.git
 cd ambrose
 ```
 
@@ -63,23 +56,23 @@ command and then browse to
 ./bin/ambrose-demo
 ```
 
-To run Ambrose with an actual Pig script, you'll need to build the Ambrose Pig distribution:
+To run Ambrose with an actual Hive script, you'll need to build the Ambrose Hive distribution:
 
 ```
 mvn package
 ```
 
-You can then run the following commands to execute `path/to/my/script.pig` with an Ambrose app server
-embedded within the Pig client:
+You can then run the following commands to execute `path/to/my/script.sql` with an Ambrose app server
+embedded within the Hive client:
 
 ```
-cd pig/target/ambrose-pig-$VERSION-bin/ambrose-pig-$VERSION
-./bin/pig-ambrose -f path/to/my/script.pig
+cd pig/target/ambrose-hive-$VERSION-bin/ambrose-hive-$VERSION
+./bin/ambrose-hive -f path/to/my/script.sql
 ```
 
-Note that this command delegates to the `pig` script present in your local installation of Pig, so
-make sure `$PIG_HOME/bin` is in your path. Now, browse to
-[http://localhost:8080/web/workflow.html](http://localhost:8080/web/workflow.html) to see the
+Note that this command delegates to the `hive` script present in your local installation of Hive, so
+make sure `$HIVE_HOME/bin` is in your path. Now, browse to
+[http://localhost:8080/dashboard.html](http://localhost:8080/dashboard.html) to see the
 progress of your script using the Ambrose UI. To override the default port, export `AMBROSE_PORT`
 before invoking `pig-ambrose`:
 
