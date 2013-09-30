@@ -133,7 +133,6 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
   @Override
   public void run(SessionState session, QueryPlan queryPlan, JobConf job,
   		RunningJob runningJob, Integer taskId) {
-	  System.out.println("###########run job post hook##########");
   	if (init) {
           init(runningJob.getJobID());
           init = false;
@@ -200,7 +199,6 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
 	      // job identifier on GUI
 	      job.setId(AmbroseHiveUtil.asDisplayId(queryId, jobIDStr, nodeId));
 	      reporter.addJobIdToNodeId(jobIDStr, nodeId);
-	      System.out.println("###########sending event##########");
 	      reporter.pushEvent(queryId, new Event.JobStartedEvent(dagNode));
 	    }
 	    try {

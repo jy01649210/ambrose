@@ -165,7 +165,6 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
   @Override
   public synchronized Collection<Event> getEventsSinceId(String workflowId, int sinceId) {
     int minId = sinceId >= 0 ? sinceId + 1 : sinceId;
-    System.out.println("#######try to get event from: " + workflowId);
     Set<String> events = jedis.zrangeByScore(workflowId, minId, ZRANGEBYSCORE_MAX);
     Iterator it = events.iterator();
     while(it.hasNext()) {
@@ -174,7 +173,6 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
 		try {
 			event = (Event<DAGNode<Job>>)Event.fromJson(eventStr);
 			//event = JSONUtil.toObject(eventStr, new TypeReference<Event<DAGNode<HiveJob>>>(){});
-			System.out.println("#######event: " + event.toJson());
 			eventMap.put(event.getId(), event);
 		} catch (IOException e) {
 			e.printStackTrace();

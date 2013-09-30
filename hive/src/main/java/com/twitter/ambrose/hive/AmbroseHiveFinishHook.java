@@ -166,7 +166,6 @@ public void run(SessionState sess, Set<ReadEntity> inputs,
     displayStatistics();
 
     if (!isLastCommandProcessed(sess.getCmd())) {
-    	System.out.println("##############not the last one############");
       return;
     }
 
