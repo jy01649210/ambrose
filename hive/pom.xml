@@ -39,6 +39,13 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>ambrose-common</artifactId>
     </dependency>
+    
+    <!-- redis -->
+    <dependency>
+      	<groupId>redis.clients</groupId>
+      	<artifactId>jedis</artifactId>
+      	<version>2.1.0</version>
+      </dependency>
 
     <!-- testing -->
     <dependency>

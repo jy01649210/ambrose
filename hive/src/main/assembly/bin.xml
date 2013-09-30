@@ -30,6 +30,7 @@
               <include>org.mortbay.jetty:jetty</include>
               <include>org.mortbay.jetty:jetty-util</include>
               <include>org.mortbay.jetty:servlet-api</include>
+              <include>redis.clients:jedis</include>
             </includes>
             <useTransitiveDependencies>false</useTransitiveDependencies>
           </dependencySet>
