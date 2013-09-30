@@ -5,12 +5,11 @@
     <groupId>com.twitter.ambrose</groupId>
     <artifactId>ambrose</artifactId>
     <version>0.2.6-SNAPSHOT</version>
-    <relativePath>../../ambrose</relativePath>
+    <relativePath>..</relativePath>
   </parent>
-  <groupId>com.alibaba.ambrose</groupId>
+  
   <artifactId>ambrose-web</artifactId>
   <packaging>war</packaging>
-  <version>0.0.1-SNAPSHOT</version>
   <name>Ambrose Web</name>
   <url>http://maven.apache.org</url>
   
