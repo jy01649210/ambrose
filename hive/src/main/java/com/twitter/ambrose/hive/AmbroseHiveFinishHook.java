@@ -170,26 +170,7 @@ public void run(SessionState sess, Set<ReadEntity> inputs,
       return;
     }
 
-    reporter.restoreEventStack();
-    String sleepTime = System.getProperty(POST_SCRIPT_SLEEP_SECS_PARAM, "10");
-    try {
-      int sleepTimeSeconds = Integer.parseInt(sleepTime);
-      System.out.println("##############sleepTime:" + sleepTime);
-
-      LOG.info("Script complete but sleeping for " + sleepTimeSeconds
-          + " seconds to keep the HiveStats REST server running. Hit ctrl-c to exit.");
-      Thread.sleep(sleepTimeSeconds * 1000L);
-      System.out.println("##############stopServer############");
-      reporter.stopServer();
-
-    }
-    catch (NumberFormatException e) {
-      LOG.warn(POST_SCRIPT_SLEEP_SECS_PARAM + " param is not a valid number, not sleeping: "
-          + sleepTime);
-    }
-    catch (InterruptedException e) {
-      LOG.warn("Sleep interrupted", e);
-    }
+    reporter.restoreEventStack(queryId);
 	
 }
 

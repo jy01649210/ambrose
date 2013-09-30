@@ -127,7 +127,7 @@ public class AmbroseHivePreHook implements PreExecute {
                 eventData.put(WorkflowProgressField.workflowProgress, "0");
                 reporter.pushEvent(queryId, new Event.WorkflowProgressEvent(eventData));
                 
-                reporter.saveEventStack();
+                reporter.saveEventStack(queryId);
                 reporter.reset();
             }
             catch (InterruptedException e) {

@@ -91,12 +91,16 @@ public abstract class AmbroseHiveProgressReporter {
   /**
    * Saves events and DAGNodes for a given workflow
    */
+  public abstract void saveEventStack(String workflowId);
+  
   public abstract void saveEventStack();
 
   /**
    * Restores events and DAGNodes of all workflows within a script This enables
    * to replay all the workflows when the script finishes
    */
+  public abstract void restoreEventStack(String workflowId);
+  
   public abstract void restoreEventStack();
   
   protected StatsWriteService<? extends Job> getStatsWriteService() {

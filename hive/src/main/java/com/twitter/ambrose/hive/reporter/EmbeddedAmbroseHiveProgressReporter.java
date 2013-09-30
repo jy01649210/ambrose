@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.twitter.ambrose.hive.AmbroseHiveUtil;
 import com.twitter.ambrose.model.Event;
-import com.twitter.ambrose.server.ScriptStatusServer;
 import com.twitter.ambrose.service.impl.InMemoryStatsService;
 
 /**
@@ -40,7 +39,6 @@ public class EmbeddedAmbroseHiveProgressReporter extends AmbroseHiveProgressRepo
   private static final Log LOG = LogFactory.getLog(EmbeddedAmbroseHiveProgressReporter.class);
 
   private InMemoryStatsService service;
-  private ScriptStatusServer server;
 
   /**
    * internal eventMap field unfolded from InMemoryStatsService
@@ -52,8 +50,6 @@ public class EmbeddedAmbroseHiveProgressReporter extends AmbroseHiveProgressRepo
   EmbeddedAmbroseHiveProgressReporter() {
     super(new InMemoryStatsService());
     this.service = (InMemoryStatsService) getStatsWriteService();
-    this.server = new ScriptStatusServer(service, service);
-    this.server.start();
     initInternal();
   }
   
@@ -75,9 +71,9 @@ public class EmbeddedAmbroseHiveProgressReporter extends AmbroseHiveProgressRepo
    * Saves events and DAGNodes for a given workflow
    */
   @Override
-  public void saveEventStack() {
+  public void saveEventStack(String workflowId) {
     allEvents.putAll(_eventMap);
-    allDagNodes.putAll(service.getDagNodeNameMap(null));
+    allDagNodes.putAll(service.getDagNodeNameMap(workflowId));
   }
 
   /**
@@ -85,16 +81,11 @@ public class EmbeddedAmbroseHiveProgressReporter extends AmbroseHiveProgressRepo
    * to replay all the workflows when the script finishes
    */
   @Override
-  public void restoreEventStack() {
+  public void restoreEventStack(String workflowId) {
     _eventMap.putAll(allEvents);
-    service.getDagNodeNameMap(null).putAll(allDagNodes);
+    service.getDagNodeNameMap(workflowId).putAll(allDagNodes);
   }
-  
-  public void stopServer() {
-    LOG.info("Stopping Ambrose Server...");
-    server.stop();
-  }
-  
+    
   public void flushJsonToDisk() {
     try {
       service.flushJsonToDisk();
@@ -108,5 +99,17 @@ public class EmbeddedAmbroseHiveProgressReporter extends AmbroseHiveProgressRepo
   public void resetAdditionals() {
     _eventMap.clear();
   }
+
+@Override
+public void saveEventStack() {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public void restoreEventStack() {
+	// TODO Auto-generated method stub
+	
+}
 
 }

@@ -57,12 +57,17 @@ export HADOOP_USER_CLASSPATH_FIRST="true"
 export HIVE_OPTS="\
 -hiveconf hive.aux.jars.path=$AMBROSE_JARS \
 -hiveconf hive.exec.pre.hooks=com.twitter.ambrose.hive.AmbroseHivePreHook \
--hiveconf hive.client.stats.publishers=com.twitter.ambrose.hive.AmbroseHiveStatPublisher \
--hiveconf hive.exec.driver.run.hooks=com.twitter.ambrose.hive.AmbroseHiveFinishHook \
--hiveconf hive.exec.failure.hooks=com.twitter.ambrose.hive.AmbroseHiveFailHook \
+-hiveconf hive.exec.post.hooks=com.twitter.ambrose.hive.AmbroseHiveFinishHook \
+-hiveconf hive.job.pre.hooks=com.twitter.ambrose.hive.AmbroseHivePreJob \
+-hiveconf hive.job.post.hooks=com.twitter.ambrose.hive.AmbroseHiveStatPublisher \
+#-hiveconf hive.client.stats.publishers=com.twitter.ambrose.hive.AmbroseHiveStatPublisher \
+#-hiveconf hive.exec.driver.run.hooks=com.twitter.ambrose.hive.AmbroseHiveFinishHook \
+#-hiveconf hive.exec.failure.hooks=com.twitter.ambrose.hive.AmbroseHiveFailHook \
 -hiveconf ambrose.port=$AMBROSE_PORT \
 -hiveconf ambrose.wf.between.sleep.seconds=$AMBROSE_WF_BETWEEN_TIMEOUT \
 -hiveconf ambrose.post.script.sleep.seconds=$AMBROSE_TIMEOUT \
+-hiveconf ambrose.write.dag.file=/home/tmp/dag.txt \ 
+-hiveconf ambrose.write.events.file=/home/tmp/events.txt \
 $HIVE_OPTS"
 
 # construct hive command line, log and invoke

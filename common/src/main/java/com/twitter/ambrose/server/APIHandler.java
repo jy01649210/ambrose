@@ -2,6 +2,7 @@ package com.twitter.ambrose.server;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -113,9 +114,11 @@ public class APIHandler extends AbstractHandler {
       int dispatch) throws IOException, ServletException {
 
     if (target.endsWith("/clusters")) {
+    	System.out.println("###############endsWith clusters");
       sendJson(request, response, workflowIndexReadService.getClusters());
 
     } else if (target.endsWith("/workflows")) {
+    	System.out.println("###############endsWith workflows");
       String cluster = normalize(request.getParameter(QUERY_PARAM_CLUSTER));
       String user = normalize(request.getParameter(QUERY_PARAM_USER));
       String statusParam = normalize(request.getParameter(QUERY_PARAM_STATUS));
@@ -133,6 +136,7 @@ public class APIHandler extends AbstractHandler {
       sendJson(request, response, workflows);
 
     } else if (target.endsWith("/dag")) {
+    	System.out.println("###############endsWith dag");
       String workflowId = normalize(request.getParameter(QUERY_PARAM_WORKFLOW_ID));
 
       LOG.info("Submitted request for workflowId={}", workflowId);
@@ -147,16 +151,24 @@ public class APIHandler extends AbstractHandler {
     } else if (target.endsWith("/events")) {
       String lastEventIdParam = normalize(request.getParameter(QUERY_PARAM_LAST_EVENT_ID));
       Integer lastEventId = getInt(lastEventIdParam, -1);
+      System.out.println("###############endsWith events: " + lastEventId);
 
       LOG.info("Submitted request for lastEventId={}", lastEventId);
       Collection<Event> events = statsReadService
           .getEventsSinceId(request.getParameter(QUERY_PARAM_WORKFLOW_ID), lastEventId);
+      
+//      Iterator it = events.iterator();
+//      while(it.hasNext()) {
+//    	  Event e = (Event)it.next();
+//    	  System.out.println("##########event: " + e.toJson());
+//      }
 
       response.setContentType(MIME_TYPE_JSON);
       response.setStatus(HttpServletResponse.SC_OK);
       sendJson(request, response, events.toArray(new Event[events.size()]));
 
     } else if (target.endsWith(".html")) {
+    	System.out.println("###############endsWith .html");
       response.setContentType(MIME_TYPE_HTML);
       // this is because the next handler will be picked up here and it doesn't seem to
       // handle html well. This is jank.

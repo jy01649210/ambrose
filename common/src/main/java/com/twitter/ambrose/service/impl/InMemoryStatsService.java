@@ -19,14 +19,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -43,6 +48,8 @@ import com.twitter.ambrose.service.StatsReadService;
 import com.twitter.ambrose.service.StatsWriteService;
 import com.twitter.ambrose.service.WorkflowIndexReadService;
 import com.twitter.ambrose.util.JSONUtil;
+
+import redis.clients.jedis.*;
 
 /**
  * In-memory implementation of both StatsReadService and StatsWriteService. Used when stats
@@ -67,20 +74,25 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
   private static final Logger LOG = LoggerFactory.getLogger(InMemoryStatsService.class);
   private static final String DUMP_WORKFLOW_FILE_PARAM = "ambrose.write.dag.file";
   private static final String DUMP_EVENTS_FILE_PARAM = "ambrose.write.events.file";
+  private static final int ZRANGEBYSCORE_MAX = 10000;
   private final WorkflowSummary summary = new WorkflowSummary(null,
       System.getProperty("user.name", "unknown"), "unknown", null, 0, System.currentTimeMillis());
   private final PaginatedList<WorkflowSummary> summaries =
       new PaginatedList<WorkflowSummary>(ImmutableList.of(summary));
   private boolean jobFailed = false;
   private Map<String, DAGNode<Job>> dagNodeNameMap = Maps.newHashMap();
+  private Map<String,Map<String, DAGNode<Job>>> wfDagNodeNameMap = Maps.newHashMap();
   private SortedMap<Integer, Event> eventMap = new ConcurrentSkipListMap<Integer, Event>();
   private Writer workflowWriter;
   private Writer eventsWriter;
   private boolean eventWritten = false;
+  private Jedis jedis;
 
   public InMemoryStatsService() {
     String dumpWorkflowFileName = System.getProperty(DUMP_WORKFLOW_FILE_PARAM);
     String dumpEventsFileName = System.getProperty(DUMP_EVENTS_FILE_PARAM);
+    
+    jedis = new Jedis("localhost");
 
     if (dumpWorkflowFileName != null) {
       try {
@@ -105,13 +117,15 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
     this.summary.setId(workflowId);
     this.summary.setStatus(WorkflowSummary.Status.RUNNING);
     this.summary.setProgress(0);
-    this.dagNodeNameMap = dagNodeNameMap;
-    writeJsonDagNodenameMapToDisk(dagNodeNameMap);
+
+    jedis.hset("workflow", workflowId, JSONUtil.toJson(dagNodeNameMap));
+    jedis.hset("wf_sum", workflowId, JSONUtil.toJson(summary));
+
   }
 
   @Override
   public synchronized void pushEvent(String workflowId, Event event) throws IOException {
-    eventMap.put(event.getId(), event);
+    //eventMap.put(event.getId(), event);
     switch (event.getType()) {
       case WORKFLOW_PROGRESS:
         Event.WorkflowProgressEvent workflowProgressEvent = (Event.WorkflowProgressEvent) event;
@@ -130,17 +144,43 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
       default:
         // nothing
     }
-    writeJsonEventToDisk(event);
+    //writeJsonEventToDisk(event);
+    jedis.hset("wf_sum", workflowId, JSONUtil.toJson(summary));
+    jedis.zadd(workflowId, event.getId() , JSONUtil.toJson(event));
   }
 
   @Override
   public synchronized Map<String, DAGNode<Job>> getDagNodeNameMap(String workflowId) {
+	String json = jedis.hget("workflow", workflowId);
+	if(json != null) {
+		try {
+			dagNodeNameMap = JSONUtil.toObject(json, new TypeReference<Map<String, DAGNode<Job>>>() {});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
     return dagNodeNameMap;
   }
 
   @Override
   public synchronized Collection<Event> getEventsSinceId(String workflowId, int sinceId) {
     int minId = sinceId >= 0 ? sinceId + 1 : sinceId;
+    System.out.println("#######try to get event from: " + workflowId);
+    Set<String> events = jedis.zrangeByScore(workflowId, minId, ZRANGEBYSCORE_MAX);
+    Iterator it = events.iterator();
+    while(it.hasNext()) {
+    	String eventStr = (String)it.next();
+    	Event<DAGNode<Job>> event = null;
+		try {
+			event = (Event<DAGNode<Job>>)Event.fromJson(eventStr);
+			//event = JSONUtil.toObject(eventStr, new TypeReference<Event<DAGNode<HiveJob>>>(){});
+			System.out.println("#######event: " + event.toJson());
+			eventMap.put(event.getId(), event);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
     return eventMap.tailMap(minId).values();
   }
 
@@ -153,13 +193,21 @@ public class InMemoryStatsService implements StatsReadService, StatsWriteService
   public synchronized PaginatedList<WorkflowSummary> getWorkflows(String cluster,
       WorkflowSummary.Status status, String userId, int numResults, byte[] startKey)
       throws IOException {
-    return summaries;
+	  
+	  Map<String,String> jsonMap = jedis.hgetAll("wf_sum");
+	  ArrayList<WorkflowSummary> sum = new ArrayList();
+	  for(String key : jsonMap.keySet()) {
+		  WorkflowSummary workflow = JSONUtil.toObject(jsonMap.get(key), WorkflowSummary.class);
+		  sum.add(workflow);
+	  }
+    return new PaginatedList<WorkflowSummary>(ImmutableList.copyOf(sum));
   }
 
   private void writeJsonDagNodenameMapToDisk(Map<String, DAGNode<Job>> dagNodeNameMap)
       throws IOException {
     if (workflowWriter != null && dagNodeNameMap != null) {
-      JSONUtil.writeJson(workflowWriter, dagNodeNameMap.values());
+      //JSONUtil.writeJson(workflowWriter, dagNodeNameMap.values());
+    	JSONUtil.writeJson(workflowWriter, dagNodeNameMap);
     }
   }
 

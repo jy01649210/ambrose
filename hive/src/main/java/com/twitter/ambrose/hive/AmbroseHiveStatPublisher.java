@@ -133,6 +133,7 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
   @Override
   public void run(SessionState session, QueryPlan queryPlan, JobConf job,
   		RunningJob runningJob, Integer taskId) {
+	  System.out.println("###########run job post hook##########");
   	if (init) {
           init(runningJob.getJobID());
           init = false;
@@ -155,7 +156,7 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
   		Iterator it1 = group.iterator();
   		while(it1.hasNext()){
   			Counter c = (Counter)it1.next();
-  			System.out.println("###" + group.getName() + "::" + c.getName() + "@" + c.getValue() + "###");
+  			//System.out.println("###" + group.getName() + "::" + c.getName() + "@" + c.getValue() + "###");
   			counterValue.put(group.getName() + "::" + c.getName(), new Double(c.getValue())) ;
   		}
   	}
@@ -164,7 +165,6 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
   	}
   	    // send job statistics to the Ambrose server
   	send(runningJob.getJobID(), counterValue);
-  	System.out.println("@@@ send ok @@@");
   }
 
   private void init(String jobIDStr) {
@@ -200,6 +200,7 @@ public class AmbroseHiveStatPublisher implements PostJobHook {
 	      // job identifier on GUI
 	      job.setId(AmbroseHiveUtil.asDisplayId(queryId, jobIDStr, nodeId));
 	      reporter.addJobIdToNodeId(jobIDStr, nodeId);
+	      System.out.println("###########sending event##########");
 	      reporter.pushEvent(queryId, new Event.JobStartedEvent(dagNode));
 	    }
 	    try {

@@ -89,6 +89,10 @@ public class JSONUtil {
   public static <T> T toObject(String json, JavaType type) throws IOException {
     return mapper.readValue(json, type);
   }
+  
+  public static <T> T toObject(String json, Class<T> type) throws IOException {
+	    return mapper.readValue(json, type);
+	  }
 
   public static String readFile(String path) throws IOException {
     FileInputStream stream = new FileInputStream(new File(path));

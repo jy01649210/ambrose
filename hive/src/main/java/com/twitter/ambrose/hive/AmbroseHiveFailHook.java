@@ -77,24 +77,6 @@ public class AmbroseHiveFailHook implements ExecuteWithHookContext {
     }
 
     reporter.restoreEventStack();
-    String sleepTime = System.getProperty(POST_SCRIPT_SLEEP_SECS_PARAM, "10");
-    try {
-      int sleepTimeSeconds = Integer.parseInt(sleepTime);
-
-      LOG.info("Script failed but sleeping for " + sleepTimeSeconds
-          + " seconds to keep the HiveStats REST server running. Hit ctrl-c to exit.");
-
-      Thread.sleep(sleepTimeSeconds * 1000L);
-      reporter.stopServer();
-
-    }
-    catch (NumberFormatException e) {
-      LOG.warn(POST_SCRIPT_SLEEP_SECS_PARAM + " param is not a valid number, not sleeping: "
-          + sleepTime);
-    }
-    catch (InterruptedException e) {
-      LOG.warn("Sleep interrupted", e);
-    }
   }
 
   /**

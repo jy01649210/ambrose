@@ -190,6 +190,11 @@
         <artifactId>hive-cli</artifactId>
         <version>${apache.hive.version}</version>
       </dependency>
+      <dependency>
+      	<groupId>redis.clients</groupId>
+      	<artifactId>jedis</artifactId>
+      	<version>2.1.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
